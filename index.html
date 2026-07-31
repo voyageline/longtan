@@ -2,7 +2,6 @@
 <html lang="zh-CN">
 
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -15,62 +14,55 @@ body{
     margin:auto;
     padding:20px;
     font-family:"Microsoft YaHei",Arial;
-    background:#f3f3f3;
+    background:#f5f5f5;
 }
-
 
 h1{
     text-align:center;
 }
 
-
 textarea{
     width:100%;
     height:120px;
     padding:10px;
+    font-size:16px;
     box-sizing:border-box;
 }
 
-
 button{
-    padding:8px 15px;
-    margin-top:8px;
+    margin-top:10px;
+    padding:10px 20px;
+    border:0;
+    border-radius:8px;
     cursor:pointer;
 }
 
-
-.post{
-
-    background:white;
-    margin-top:15px;
-    padding:15px;
-    border-radius:10px;
-
+.send{
+    background:#1677ff;
+    color:white;
 }
-
 
 .delete{
-
+    float:right;
     background:#ff4d4f;
     color:white;
-    border:0;
-    float:right;
-
 }
 
+.post{
+    background:white;
+    padding:15px;
+    margin-top:15px;
+    border-radius:10px;
+}
 
 .time{
-
     color:#888;
     font-size:12px;
-
 }
-
 
 </style>
 
 </head>
-
 
 
 <body>
@@ -80,13 +72,13 @@ button{
 
 
 <textarea id="content"
-placeholder="请输入内容..."></textarea>
+placeholder="说点什么..."></textarea>
 
 
 <br>
 
 
-<button onclick="sendPost()">
+<button class="send" onclick="sendPost()">
 发布
 </button>
 
@@ -115,7 +107,6 @@ const SUPABASE_KEY =
 "sb_publishable_kpHZAYVxYGiKzbOH5kvOOA_C_vbnIGH";
 
 
-
 const db =
 supabase.createClient(
 SUPABASE_URL,
@@ -124,37 +115,7 @@ SUPABASE_KEY
 
 
 
-
-// ===== 用户身份 =====
-
-
-let user_id =
-localStorage.getItem("forum_user_id");
-
-
-if(!user_id){
-
-user_id =
-crypto.randomUUID();
-
-localStorage.setItem(
-"forum_user_id",
-user_id
-);
-
-}
-
-
-
-// ===== 管理员 =====
-
-// 以后可以修改
-const ADMIN_PASSWORD =
-"admin123";
-
-
-
-
+// 加载帖子
 
 async function loadPosts(){
 
@@ -162,17 +123,15 @@ async function loadPosts(){
 let {data,error}=await db
 .from("posts")
 .select("*")
-.order(
-"id",
-{ascending:false}
-);
+.order("id",{ascending:false})
+.limit(50);
 
 
 
 if(error){
 
-document.getElementById("posts").innerHTML=
-error.message;
+document.getElementById("posts").innerHTML =
+"加载失败："+error.message;
 
 return;
 
@@ -186,58 +145,38 @@ let html="";
 data.forEach(post=>{
 
 
-let canDelete =
-post.user_id===user_id;
-
-
-
 html += `
-
 
 <div class="post">
 
 
-<button
-class="delete"
-style="display:${canDelete?"block":"none"}"
+<button class="delete"
 onclick="deletePost(${post.id})">
-
 删除
-
 </button>
-
 
 
 <b>${post.nickname}</b>
 
 
 <p>
-
-${escapeHTML(post.content)}
-
+${safe(post.content)}
 </p>
 
 
 <div class="time">
-
 ${post.created_at}
-
 </div>
 
 
 </div>
-
 
 `;
-
-
 
 });
 
 
-
-document.getElementById("posts")
-.innerHTML =
+document.getElementById("posts").innerHTML =
 html || "暂无帖子";
 
 
@@ -246,18 +185,19 @@ html || "暂无帖子";
 
 
 
+// 发布帖子
 
 async function sendPost(){
 
 
-let content =
+let text =
 document.getElementById("content")
 .value
 .trim();
 
 
 
-if(!content){
+if(!text){
 
 alert("请输入内容");
 
@@ -268,11 +208,8 @@ return;
 
 
 let nickname =
-"匿名用户"
-+
-Math.floor(
-Math.random()*9000+1000
-);
+"匿名用户"+
+Math.floor(Math.random()*9000+1000);
 
 
 
@@ -282,9 +219,7 @@ let {error}=await db
 
 nickname:nickname,
 
-content:content,
-
-user_id:user_id
+content:text
 
 });
 
@@ -292,7 +227,7 @@ user_id:user_id
 
 if(error){
 
-alert(error.message);
+alert("发布失败："+error.message);
 
 return;
 
@@ -312,14 +247,12 @@ loadPosts();
 
 
 
-
+// 删除帖子
 
 async function deletePost(id){
 
 
-
 if(!confirm("确定删除？"))
-
 return;
 
 
@@ -327,17 +260,17 @@ return;
 let {error}=await db
 .from("posts")
 .delete()
-.eq("id",id)
-.eq("user_id",user_id);
+.eq("id",id);
 
 
 
 if(error){
 
-alert(error.message);
+alert("删除失败："+error.message);
+
+return;
 
 }
-
 
 
 loadPosts();
@@ -348,10 +281,11 @@ loadPosts();
 
 
 
-function escapeHTML(str){
+// 防止HTML注入
+
+function safe(str){
 
 return str
-.replace(/&/g,"&amp;")
 .replace(/</g,"&lt;")
 .replace(/>/g,"&gt;");
 
@@ -359,8 +293,8 @@ return str
 
 
 
-loadPosts();
 
+loadPosts();
 
 
 </script>
