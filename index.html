@@ -7,27 +7,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 <title>虎台中学匿名论坛</title>
-<div class="notice">
 
-<p>
-<b>免责声明：</b>
-本论坛为校园匿名交流平台，仅供学生交流和表达个人观点使用。
-用户发布的内容仅代表发布者个人观点，不代表本站立场。
-请勿发布违法信息、侵犯他人隐私、造谣诽谤、辱骂攻击等内容。
-用户应对自己发布的信息承担相应责任。
-管理员有权删除违反规则的内容。
-</p>
-</div>
+
 <style>
-  .notice{
-    background:#fff7e6;
-    border:1px solid #ffd591;
-    padding:12px;
-    border-radius:8px;
-    font-size:14px;
-    color:#666;
-    margin-bottom:15px;
-}
+
 body{
 max-width:800px;
 margin:auto;
@@ -36,9 +19,22 @@ font-family:"Microsoft YaHei",Arial;
 background:#f5f5f5;
 }
 
+
 h1{
 text-align:center;
 }
+
+
+.notice{
+background:#fff7e6;
+border:1px solid #ffd591;
+padding:12px;
+border-radius:8px;
+font-size:14px;
+color:#666;
+margin-bottom:15px;
+}
+
 
 textarea{
 width:100%;
@@ -47,10 +43,12 @@ padding:10px;
 box-sizing:border-box;
 }
 
+
 input{
 padding:8px;
 width:70%;
 }
+
 
 button{
 padding:8px 15px;
@@ -59,10 +57,12 @@ border:0;
 border-radius:6px;
 }
 
+
 .send{
 background:#1677ff;
 color:white;
 }
+
 
 .delete{
 background:#ff4d4f;
@@ -70,55 +70,84 @@ color:white;
 float:right;
 }
 
+
 .replybtn{
 background:#52c41a;
 color:white;
 }
 
-.post{
 
+.post{
 background:white;
 padding:15px;
 margin-top:15px;
 border-radius:10px;
-
 }
 
-.reply{
 
+.reply{
 background:#f8f8f8;
 padding:8px;
 margin-top:8px;
 border-radius:6px;
-
 }
+
 
 .time{
-
 font-size:12px;
 color:#888;
-
 }
+
 
 </style>
 
+
 </head>
+
 
 
 <body>
 
 
-<h1>校园匿名论坛</h1>
+
+<h1>虎台中学匿名论坛</h1>
+
+
+
+<div class="notice">
+
+<p>
+
+<b>免责声明：</b><br>
+
+本论坛为校园匿名交流平台，仅供学生交流和表达个人观点使用。<br>
+
+用户发布的内容仅代表发布者个人观点，不代表本站立场。<br>
+
+请勿发布违法信息、侵犯他人隐私、造谣诽谤、辱骂攻击等内容。<br>
+
+用户应对自己发布的信息承担相应责任。<br>
+
+管理员有权删除违反规则的内容。
+
+</p>
+
+</div>
+
 
 
 <textarea id="content"
 placeholder="请输入内容..."></textarea>
 
 
+
 <br>
 
+
 <button class="send" onclick="sendPost()">
+
 发布
+
 </button>
 
 
@@ -126,9 +155,13 @@ placeholder="请输入内容..."></textarea>
 <h2>最新帖子</h2>
 
 
+
 <div id="posts">
+
 加载中...
+
 </div>
+
 
 
 
@@ -136,15 +169,20 @@ placeholder="请输入内容..."></textarea>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
+
+
 <script>
+
 
 
 const SUPABASE_URL =
 "https://qxnjtuyxfzlpdopplidj.supabase.co";
 
 
+
 const SUPABASE_KEY =
 "sb_publishable_kpHZAYVxYGiKzbOH5kvOOA_C_vbnIGH";
+
 
 
 const db =
@@ -155,22 +193,30 @@ SUPABASE_KEY
 
 
 
-// 加载帖子
+
 
 async function loadPosts(){
 
 
+
 let {data,error}=await db
+
 .from("posts")
+
 .select("*")
+
 .order("id",{ascending:false})
+
 .limit(50);
+
+
 
 
 
 if(error){
 
-posts.innerHTML=error.message;
+document.getElementById("posts").innerHTML=
+error.message;
 
 return;
 
@@ -178,50 +224,71 @@ return;
 
 
 
+
 let html="";
+
 
 
 data.forEach(post=>{
 
 
-html+=`
+html += `
+
 
 <div class="post">
 
 
 <button class="delete"
 onclick="deletePost(${post.id})">
+
 删除
+
 </button>
 
 
+
 <b>
+
 ${safe(post.nickname)}
+
 </b>
 
 
+
 <p>
+
 ${safe(post.content)}
+
 </p>
 
 
+
 <div class="time">
+
 ${post.created_at}
+
 </div>
 
 
 
 <div id="reply-${post.id}">
-加载回复...
+
+加载回复中...
+
 </div>
 
 
-<input 
+
+<input
+
 id="input-${post.id}"
+
 placeholder="回复">
 
 
+
 <button class="replybtn"
+
 onclick="sendReply(${post.id})">
 
 回复
@@ -232,6 +299,7 @@ onclick="sendReply(${post.id})">
 
 </div>
 
+
 `;
 
 
@@ -239,8 +307,13 @@ onclick="sendReply(${post.id})">
 });
 
 
-document.getElementById("posts")
-.innerHTML=html || "暂无帖子";
+
+
+
+document.getElementById("posts").innerHTML =
+
+html || "暂无帖子";
+
 
 
 
@@ -251,19 +324,23 @@ loadReplies(post.id);
 });
 
 
+
 }
 
 
 
 
 
-// 发布帖子
 
 async function sendPost(){
 
 
+
 let text =
-content.value.trim();
+document.getElementById("content")
+.value
+.trim();
+
 
 
 
@@ -276,16 +353,26 @@ return;
 }
 
 
-let nickname=
-"匿名用户"+
+
+
+let nickname =
+
+"匿名用户" +
+
 Math.floor(
+
 Math.random()*9000+1000
+
 );
 
 
 
+
+
 let {error}=await db
+
 .from("posts")
+
 .insert({
 
 nickname:nickname,
@@ -293,6 +380,8 @@ nickname:nickname,
 content:text
 
 });
+
+
 
 
 
@@ -305,10 +394,14 @@ return;
 }
 
 
-content.value="";
+
+document.getElementById("content")
+.value="";
+
 
 
 loadPosts();
+
 
 
 }
@@ -317,16 +410,21 @@ loadPosts();
 
 
 
-// 加载回复
 
 async function loadReplies(post_id){
 
 
+
 let {data,error}=await db
+
 .from("replies")
+
 .select("*")
+
 .eq("post_id",post_id)
+
 .order("id");
+
 
 
 
@@ -337,20 +435,27 @@ if(error)return;
 let html="";
 
 
+
 data.forEach(r=>{
 
 
-html+=`
+html += `
+
 
 <div class="reply">
 
-<b>${safe(r.nickname)}</b>
+<b>
+
+${safe(r.nickname)}
+
+</b>
 
 ：
 
 ${safe(r.content)}
 
 </div>
+
 
 `;
 
@@ -361,28 +466,41 @@ ${safe(r.content)}
 
 
 document.getElementById(
+
 "reply-"+post_id
-).innerHTML=
+
+).innerHTML =
+
 html || "暂无回复";
+
+
 
 }
 
 
 
 
-// 发布回复
+
 
 async function sendReply(post_id){
 
 
+
 let input =
+
 document.getElementById(
+
 "input-"+post_id
+
 );
 
 
+
+
 let text =
+
 input.value.trim();
+
 
 
 
@@ -390,16 +508,25 @@ if(!text)return;
 
 
 
-let nickname=
-"匿名用户"+
+
+let nickname =
+
+"匿名用户" +
+
 Math.floor(
+
 Math.random()*9000+1000
+
 );
 
 
 
+
+
 let {error}=await db
+
 .from("replies")
+
 .insert({
 
 post_id:post_id,
@@ -409,6 +536,8 @@ nickname:nickname,
 content:text
 
 });
+
+
 
 
 
@@ -425,7 +554,9 @@ return;
 input.value="";
 
 
+
 loadReplies(post_id);
+
 
 
 }
@@ -434,20 +565,29 @@ loadReplies(post_id);
 
 
 
-// 删除帖子
+
 
 async function deletePost(id){
 
 
+
 if(!confirm("确定删除？"))
+
 return;
 
 
 
+
+
 let {error}=await db
+
 .from("posts")
+
 .delete()
+
 .eq("id",id);
+
+
 
 
 
@@ -461,10 +601,13 @@ return;
 
 
 
+
 loadPosts();
 
 
+
 }
+
 
 
 
@@ -472,18 +615,27 @@ loadPosts();
 
 function safe(str){
 
+
 return String(str)
+
 .replace(/</g,"&lt;")
+
 .replace(/>/g,"&gt;");
 
+
 }
+
+
 
 
 
 loadPosts();
 
 
+
+
 </script>
+
 
 
 </body>
