@@ -1,1 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
 
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>校园匿名论坛</title>
+
+<style>
+
+body {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    font-family: Arial, "Microsoft YaHei", sans-serif;
+    background: #f5f5f5;
+}
+
+h1 {
+    text-align: center;
+}
+
+.box {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+textarea {
+    width: 100%;
+    height: 120px;
+    resize: none;
+    padding: 10px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+button {
+    margin-top: 10px;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 8px;
+    background: #1677ff;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+.post {
+    background: white;
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.name {
+    font-weight: bold;
+}
+
+.time {
+    color: gray;
+    font-size: 12px;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<h1>校园匿名论坛</h1>
+
+
+<div class="box">
+
+<textarea id="content" placeholder="说点什么..."></textarea>
+
+<button onclick="sendPost()">
+发布
+</button>
+
+</div>
+
+
+<h2>最新帖子</h2>
+
+<div id="posts">
+正在加载...
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script>
+
+
+// Supabase配置
+
+const SUPABASE_URL =
+"https://qxnjtuyxfzlpdopplidj.supabase.co";
+
+
+const SUPABASE_KEY =
+"sb_publishable_kpHZAYVxYGiKzbOH5kvOOA_C_vbnIGH";
+
+
+const db = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+
+
+async function loadPosts(){
+
+
+    const {data,error} = await db
+    .from("posts")
+    .select("*")
+    .order("id",{ascending:false});
+
+
+    if(error){
+
+        document.getElementById("posts").innerHTML =
+        "加载失败：" + error.message;
+
+        return;
+    }
+
+
+    let html="";
+
+
+    data.forEach(post=>{
+
+
+        html += `
+
+        <div class="post">
+
+        <div class="name">
+        ${post.nickname}
+        </div>
+
+        <p>
+        ${post.content}
+        </p>
+
+        <div class="time">
+        ${post.created_at}
+        </div>
+
+        </div>
+
+        `;
+
+
+    });
+
+
+    document.getElementById("posts").innerHTML =
+    html || "还没有帖子";
+
+}
+
+
+
+
+async function sendPost(){
+
+
+    let content =
+    document.getElementById("content").value.trim();
+
+
+    if(!content){
+
+        alert("请输入内容");
+
+        return;
+
+    }
+
+
+
+    let nickname =
+    "匿名用户" +
+    Math.floor(Math.random()*9000+1000);
+
+
+
+    const {error} = await db
+    .from("posts")
+    .insert({
+
+        nickname:nickname,
+
+        content:content
+
+    });
+
+
+
+    if(error){
+
+        alert(
+        "发布失败：" + error.message
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById("content").value="";
+
+
+    loadPosts();
+
+
+}
+
+
+
+
+loadPosts();
+
+
+</script>
+
+
+</body>
+
+</html>
