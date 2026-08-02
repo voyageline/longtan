@@ -254,6 +254,15 @@ ${post.created_at || ""}
 
 
 
+${
+post.locked ?
+
+"<p style='color:#999;'>此帖子已锁定，无法回复</p>"
+
+:
+
+`
+
 <input
 
 id="input-${post.id}"
@@ -268,6 +277,10 @@ onclick="sendReply(${post.id})">
 回复
 
 </button>
+
+`
+
+}
 
 
 
