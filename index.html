@@ -359,7 +359,7 @@ Math.random()*9000+1000
 
 );
 
-
+document.getElementById("posts").innerHTML="加载中...";
 
 
 let res = await fetch("/api/post",{
@@ -402,14 +402,13 @@ return;
 }
 
 
-
-document.getElementById("content")
-.value="";
+document.getElementById("content").value = "";
 
 
+alert("发布成功");
 
-loadPosts();
 
+await loadPosts();
 
 
 }
