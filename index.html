@@ -368,18 +368,32 @@ Math.random()*9000+1000
 
 
 
+let res = await fetch("/api/post",{
 
-let {error}=await db
+method:"POST",
 
-.from("posts")
+headers:{
+"Content-Type":"application/json"
+},
 
-.insert({
+body:JSON.stringify({
 
 nickname:nickname,
 
 content:text
 
+})
+
 });
+
+
+if(!res.ok){
+
+alert(await res.text());
+
+return;
+
+}
 
 
 
@@ -522,8 +536,7 @@ Math.random()*9000+1000
 
 
 
-
-let res = await fetch("/api/post",{
+let res = await fetch("/api/reply",{
 
 method:"POST",
 
@@ -532,6 +545,8 @@ headers:{
 },
 
 body:JSON.stringify({
+
+post_id:post_id,
 
 nickname:nickname,
 
@@ -553,14 +568,6 @@ return;
 
 
 
-
-if(error){
-
-alert(error.message);
-
-return;
-
-}
 
 
 
