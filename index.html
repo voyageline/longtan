@@ -523,19 +523,32 @@ Math.random()*9000+1000
 
 
 
-let {error}=await db
+let res = await fetch("/api/post",{
 
-.from("replies")
+method:"POST",
 
-.insert({
+headers:{
+"Content-Type":"application/json"
+},
 
-post_id:post_id,
+body:JSON.stringify({
 
 nickname:nickname,
 
 content:text
 
+})
+
 });
+
+
+if(!res.ok){
+
+alert(await res.text());
+
+return;
+
+}
 
 
 
