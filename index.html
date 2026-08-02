@@ -244,7 +244,17 @@ ${post.created_at || ""}
 
 </div>
 
+<button 
+onclick="reportPost(${post.id})"
+style="
+background:#faad14;
+color:white;
+margin-top:10px;
+">
 
+举报
+
+</button>
 
 <div id="reply-${post.id}">
 
@@ -479,7 +489,50 @@ html || "暂无回复";
 
 
 
+async function reportPost(id){
 
+
+let reason = prompt(
+"请输入举报原因：\n例如：辱骂、造谣、隐私泄露"
+);
+
+
+
+if(!reason){
+
+return;
+
+}
+
+
+
+let {error}=await db
+
+.from("reports")
+
+.insert({
+
+post_id:id,
+
+reason:reason
+
+});
+
+
+
+if(error){
+
+alert(error.message);
+
+return;
+
+}
+
+
+
+alert("举报成功");
+
+}
 
 
 
