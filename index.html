@@ -488,14 +488,12 @@ html || "暂无回复";
 }
 
 
-
 async function reportPost(id){
 
 
 let reason = prompt(
 "请输入举报原因：\n例如：辱骂、造谣、隐私泄露"
 );
-
 
 
 if(!reason){
@@ -505,6 +503,40 @@ return;
 }
 
 
+// 检查是否已经举报
+
+let {data:old,error:checkError}=await db
+
+.from("reports")
+
+.select("id")
+
+.eq("post_id",id);
+
+
+
+if(checkError){
+
+alert(checkError.message);
+
+return;
+
+}
+
+
+
+if(old.length>0){
+
+alert("该帖子已经被举报过");
+
+return;
+
+}
+
+
+
+
+// 提交举报
 
 let {error}=await db
 
