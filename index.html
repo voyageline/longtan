@@ -184,19 +184,23 @@ const SUPABASE_KEY =
 "sb_publishable_kpHZAYVxYGiKzbOH5kvOOA_C_vbnIGH";
 
 
-
 const db =
 supabase.createClient(
 SUPABASE_URL,
-SUPABASE_KEY
+SUPABASE_KEY,
+{
+  global:{
+    headers:{
+      "Cache-Control":"no-cache"
+    }
+  }
+}
 );
 
 
 
 
-
 async function loadPosts(){
-
 
 
 let {data,error}=await db
@@ -205,10 +209,9 @@ let {data,error}=await db
 
 .select("*")
 
-.order("id",{ascending:false})
+.order("created_at",{ascending:false})
 
 .limit(50);
-
 
 
 
@@ -405,9 +408,14 @@ document.getElementById("content").value="";
 
 await new Promise(resolve => setTimeout(resolve, 500));
 
-await loadPosts();
 
 
+setTimeout(()=>{
+
+loadPosts();
+
+},1000);
+  
 }
 
 
