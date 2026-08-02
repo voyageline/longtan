@@ -64,13 +64,6 @@ color:white;
 }
 
 
-.delete{
-background:#ff4d4f;
-color:white;
-float:right;
-}
-
-
 .replybtn{
 background:#52c41a;
 color:white;
@@ -78,24 +71,30 @@ color:white;
 
 
 .post{
+
 background:white;
 padding:15px;
 margin-top:15px;
 border-radius:10px;
+
 }
 
 
 .reply{
+
 background:#f8f8f8;
 padding:8px;
 margin-top:8px;
 border-radius:6px;
+
 }
 
 
 .time{
+
 font-size:12px;
 color:#888;
+
 }
 
 
@@ -140,7 +139,6 @@ color:#888;
 placeholder="请输入内容..."></textarea>
 
 
-
 <br>
 
 
@@ -155,7 +153,6 @@ placeholder="请输入内容..."></textarea>
 <h2>最新帖子</h2>
 
 
-
 <div id="posts">
 
 加载中...
@@ -164,50 +161,43 @@ placeholder="请输入内容..."></textarea>
 
 
 
-
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 
 
 
 <script>
 
 
-
 const SUPABASE_URL =
 "https://qxnjtuyxfzlpdopplidj.supabase.co";
-
 
 
 const SUPABASE_KEY =
 "sb_publishable_kpHZAYVxYGiKzbOH5kvOOA_C_vbnIGH";
 
 
+
 const db =
 supabase.createClient(
 SUPABASE_URL,
-SUPABASE_KEY,
-{
-  global:{
-    headers:{
-      "Cache-Control":"no-cache"
-    }
-  }
-}
+SUPABASE_KEY
 );
-
 
 
 
 async function loadPosts(){
 
+
 let {data,error}=await db
+
 .from("posts")
+
 .select("*")
+
 .order("id",{ascending:false})
-.limit(50)
-.throwOnError();
+
+.limit(50);
+
 
 
 if(error){
@@ -218,7 +208,6 @@ error.message;
 return;
 
 }
-
 
 
 
@@ -235,15 +224,11 @@ html += `
 <div class="post">
 
 
-
-
-
 <b>
 
 ${safe(post.nickname)}
 
 </b>
-
 
 
 <p>
@@ -253,10 +238,9 @@ ${safe(post.content)}
 </p>
 
 
-
 <div class="time">
 
-${post.created_at}
+${post.created_at || ""}
 
 </div>
 
@@ -277,7 +261,6 @@ id="input-${post.id}"
 placeholder="回复">
 
 
-
 <button class="replybtn"
 
 onclick="sendReply(${post.id})">
@@ -294,17 +277,13 @@ onclick="sendReply(${post.id})">
 `;
 
 
-
 });
-
-
 
 
 
 document.getElementById("posts").innerHTML =
 
 html || "暂无帖子";
-
 
 
 
@@ -315,8 +294,9 @@ loadReplies(post.id);
 });
 
 
-
 }
+
+
 
 
 
@@ -341,9 +321,13 @@ return;
 
 
 let nickname =
+
 "匿名用户" +
+
 Math.floor(
+
 Math.random()*9000+1000
+
 );
 
 
@@ -353,7 +337,9 @@ let res = await fetch("/api/post",{
 method:"POST",
 
 headers:{
+
 "Content-Type":"application/json"
+
 },
 
 body:JSON.stringify({
@@ -377,17 +363,18 @@ return;
 }
 
 
-// 发布成功
 
 document.getElementById("content").value="";
 
 
-// 等待数据库写入完成
 
-await new Promise(resolve => setTimeout(resolve,1000));
+await new Promise(resolve =>
+
+setTimeout(resolve,1000)
+
+);
 
 
-// 重新加载帖子
 
 await loadPosts();
 
@@ -399,78 +386,9 @@ await loadPosts();
 
 
 
-let nickname =
-
-"匿名用户" +
-
-Math.floor(
-
-Math.random()*9000+1000
-
-);
-
-
-
-let res = await fetch("/api/post",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-nickname:nickname,
-
-content:text
-
-})
-
-});
-
-
-if(!res.ok){
-
-alert(await res.text());
-
-return;
-
-}
-
-
-
-
-
-if(error){
-
-alert(error.message);
-
-return;
-
-}
-
-document.getElementById("content").value="";
-
-await new Promise(resolve => setTimeout(resolve, 500));
-
-
-
-setTimeout(()=>{
-
-loadPosts();
-
-},1000);
-  
-}
-
-
-
-
 
 
 async function loadReplies(post_id){
-
 
 
 let {data,error}=await db
@@ -481,12 +399,15 @@ let {data,error}=await db
 
 .eq("post_id",post_id)
 
-.order("id");
+.order("id",{ascending:true});
 
 
 
+if(error){
 
-if(error)return;
+return;
+
+}
 
 
 
@@ -502,15 +423,19 @@ html += `
 
 <div class="reply">
 
+
 <b>
 
 ${safe(r.nickname)}
 
 </b>
 
+
 ：
 
 ${safe(r.content)}
+
+
 
 </div>
 
@@ -518,19 +443,23 @@ ${safe(r.content)}
 `;
 
 
-
 });
 
 
 
+let box =
 document.getElementById(
-
 "reply-"+post_id
+);
 
-).innerHTML =
 
+
+if(box){
+
+box.innerHTML =
 html || "暂无回复";
 
+}
 
 
 }
@@ -540,30 +469,28 @@ html || "暂无回复";
 
 
 
-async function sendReply(post_id){
 
+async function sendReply(post_id){
 
 
 let input =
 
 document.getElementById(
-
 "input-"+post_id
-
 );
 
 
 
-
 let text =
-
 input.value.trim();
 
 
 
+if(!text){
 
-if(!text)return;
+return;
 
+}
 
 
 
@@ -579,13 +506,14 @@ Math.random()*9000+1000
 
 
 
-
 let res = await fetch("/api/reply",{
 
 method:"POST",
 
 headers:{
+
 "Content-Type":"application/json"
+
 },
 
 body:JSON.stringify({
@@ -601,6 +529,7 @@ content:text
 });
 
 
+
 if(!res.ok){
 
 alert(await res.text());
@@ -611,66 +540,16 @@ return;
 
 
 
-
-
-
-
 input.value="";
 
 
 
-loadReplies(post_id);
-
-
-
-}
-
-
-
-
-
-
-
-async function deletePost(id){
-
-
-
-if(!confirm("确定删除？"))
-
-return;
-
-
-
-
-
-let {error}=await db
-
-.from("posts")
-
-.delete()
-
-.eq("id",id);
-
-
-
-
-
-if(error){
-
-alert(error.message);
-
-return;
-
-}
-
-
-
-
-loadPosts();
-
+await loadReplies(post_id);
 
 
 }
+
+
 
 
 
@@ -684,7 +563,11 @@ return String(str)
 
 .replace(/</g,"&lt;")
 
-.replace(/>/g,"&gt;");
+.replace(/>/g,"&gt;")
+
+.replace(/"/g,"&quot;")
+
+.replace(/'/g,"&#039;");
 
 
 }
@@ -693,8 +576,9 @@ return String(str)
 
 
 
-loadPosts();
 
+
+loadPosts();
 
 
 
