@@ -202,18 +202,12 @@ SUPABASE_KEY,
 
 async function loadPosts(){
 
-
 let {data,error}=await db
-
 .from("posts")
-
 .select("*")
-
-.order("created_at",{ascending:false})
-
-.limit(50);
-
-
+.order("id",{ascending:false})
+.limit(50)
+.throwOnError();
 
 
 if(error){
@@ -326,18 +320,13 @@ loadReplies(post.id);
 
 
 
-
-
-
 async function sendPost(){
-
 
 
 let text =
 document.getElementById("content")
 .value
 .trim();
-
 
 
 
@@ -348,6 +337,64 @@ alert("请输入内容");
 return;
 
 }
+
+
+
+let nickname =
+"匿名用户" +
+Math.floor(
+Math.random()*9000+1000
+);
+
+
+
+let res = await fetch("/api/post",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+nickname:nickname,
+
+content:text
+
+})
+
+});
+
+
+
+if(!res.ok){
+
+alert(await res.text());
+
+return;
+
+}
+
+
+// 发布成功
+
+document.getElementById("content").value="";
+
+
+// 等待数据库写入完成
+
+await new Promise(resolve => setTimeout(resolve,1000));
+
+
+// 重新加载帖子
+
+await loadPosts();
+
+
+}
+
+
 
 
 
@@ -362,7 +409,6 @@ Math.random()*9000+1000
 
 );
 
-document.getElementById("posts").innerHTML="加载中...";
 
 
 let res = await fetch("/api/post",{
