@@ -487,13 +487,13 @@ html || "暂无回复";
 
 }
 
-
 async function reportPost(id){
 
 
 let reason = prompt(
 "请输入举报原因：\n例如：辱骂、造谣、隐私泄露"
 );
+
 
 
 if(!reason){
@@ -503,52 +503,25 @@ return;
 }
 
 
-// 检查是否已经举报
+// 获取当前匿名编号
 
-let {data:old,error:checkError}=await db
+let nickname =
+"匿名用户" +
+Math.floor(
+Math.random()*9000+1000
+);
+
+
+
+// 查询这个帖子是否已经有举报记录
+
+let {data,error}=await db
 
 .from("reports")
 
-.select("id")
+.select("*")
 
 .eq("post_id",id);
-
-
-
-if(checkError){
-
-alert(checkError.message);
-
-return;
-
-}
-
-
-
-if(old.length>0){
-
-alert("该帖子已经被举报过");
-
-return;
-
-}
-
-
-
-
-// 提交举报
-
-let {error}=await db
-
-.from("reports")
-
-.insert({
-
-post_id:id,
-
-reason:reason
-
-});
 
 
 
@@ -562,7 +535,101 @@ return;
 
 
 
+
+// 已经有人举报
+
+if(data.length>0){
+
+
+let oldReason =
+data[0].reason || "";
+
+
+
+let newReason =
+oldReason
++
+"\n\n"
++
+nickname
++
+"："
++
+reason;
+
+
+
+let {error:updateError}=await db
+
+.from("reports")
+
+.update({
+
+reason:newReason
+
+})
+
+.eq("post_id",id);
+
+
+
+if(updateError){
+
+alert(updateError.message);
+
+return;
+
+}
+
+
+
+alert("举报已追加");
+
+return;
+
+
+}
+
+
+
+
+
+// 第一次举报
+
+let {error:insertError}=await db
+
+.from("reports")
+
+.insert({
+
+post_id:id,
+
+reason:
+
+nickname
+
++
+"："
+
++
+reason
+
+});
+
+
+
+if(insertError){
+
+alert(insertError.message);
+
+return;
+
+}
+
+
+
 alert("举报成功");
+
 
 }
 
