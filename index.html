@@ -401,12 +401,9 @@ return;
 
 }
 
+document.getElementById("content").value="";
 
-document.getElementById("content").value = "";
-
-
-alert("发布成功");
-
+await new Promise(resolve => setTimeout(resolve, 500));
 
 await loadPosts();
 
