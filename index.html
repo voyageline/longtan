@@ -379,6 +379,9 @@ content:text
 
 if(!res.ok){
 
+btn.disabled = false;
+btn.innerText = "回复";
+
 alert(await res.text());
 
 return;
@@ -637,7 +640,15 @@ alert("举报成功");
 
 async function sendReply(post_id){
 
+let btn = event.target;
 
+if(btn.disabled){
+    return;
+}
+
+btn.disabled = true;
+btn.innerText = "发送中...";
+  
 let input =
 
 document.getElementById(
@@ -708,9 +719,10 @@ return;
 input.value="";
 
 
-
 await loadReplies(post_id);
 
+btn.disabled = false;
+btn.innerText = "回复";
 
 }
 
