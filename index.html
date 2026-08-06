@@ -70,6 +70,18 @@ color:white;
 }
 
 
+.qualitybtn{
+background:#faad14;
+color:white;
+}
+
+
+.reportbtn{
+background:#ff7875;
+color:white;
+}
+
+
 .post{
 
 background:white;
@@ -108,35 +120,30 @@ color:#888;
 <body>
 
 
-
 <h1>虎台中学匿名论坛</h1>
 
 
 
 <div class="notice">
 
-<p>
-
 <b>免责声明：</b><br>
 
 本论坛为校园匿名交流平台，仅供学生交流和表达个人观点使用。<br>
 
-用户发布的内容仅代表发布者个人观点，不代表本站立场。<br>
+用户发布内容仅代表发布者个人观点，不代表本站立场。<br>
 
-请勿发布违法信息、侵犯他人隐私、造谣诽谤、辱骂攻击等内容。<br>
+请勿发布违法信息、侵犯隐私、造谣诽谤、辱骂攻击等内容。<br>
 
-用户应对自己发布的信息承担相应责任。<br>
-
-管理员有权删除违反规则的内容。
-
-</p>
+管理员有权删除违规内容。
 
 </div>
 
 
 
-<textarea id="content"
-placeholder="请输入内容..."></textarea>
+<textarea 
+id="content"
+placeholder="请输入内容...">
+</textarea>
 
 
 <br>
@@ -149,7 +156,10 @@ placeholder="请输入内容..."></textarea>
 </button>
 
 
+
+
 <h2>⭐ 优质帖子</h2>
+
 
 <div id="quality-posts">
 
@@ -158,13 +168,17 @@ placeholder="请输入内容..."></textarea>
 </div>
 
 
+
+
 <h2>最新帖子</h2>
+
 
 <div id="posts">
 
 加载中...
 
 </div>
+
 
 
 
@@ -192,120 +206,10 @@ SUPABASE_KEY
 
 
 
-async function loadPosts(){
 
-
-let {data,error}=await db
-
-.from("posts")
-
-.select("*")
-
-.order("id",{ascending:false})
-
-.limit(50);
-
-
-
-if(error){
-
-document.getElementById("posts").innerHTML=
-error.message;
-
-return;
-
-}
-
-
-
-let html="";
-
-
-
-data.forEach(post=>{
-
-
-html += `
-
-
-<div class="post">
-
-
-<b>
-
-${safe(post.nickname)}
-
-</b>
-
-
-<p>
-
-${safe(post.content)}
-
-</p>
-
-
-<div class="time">
-
-${post.created_at || ""}
-
-</div>
-
-<button
-onclick="voteQuality(${post.id})"
-style="
-background:#faad14;
-color:white;
-margin-top:10px;
-">
-
-⭐ 优质帖 (${post.quality_votes || 0})
-
-</button>
-
-<button 
-onclick="reportPost(${post.id})"
-style="
-background:#faad14;
-color:white;
-margin-top:10px;
-">
-
-举报
-
-</button>
-
-<div id="reply-${post.id}">
-
-加载回复中...
-
-</div>
-
-
-
-${
-post.locked ?
-
-"<p style='color:#999;'>此帖子已锁定，无法回复</p>"
-
-:
-
-`
-
-<input
-
-id="input-${post.id}"
-
-placeholder="回复">
-
-
-<button class="replybtn"
-
-onclick="sendReply(${post.id})">
-
-回复
-
-</button>
+/*
+加载优质帖子
+*/
 
 async function loadQualityPosts(){
 
@@ -331,6 +235,100 @@ ascending:false
 
 if(error){
 
+document.getElementById(
+"quality-posts"
+).innerHTML=error.message;
+
+return;
+
+}
+
+
+
+let html="";
+
+
+
+data.forEach(post=>{
+
+
+html += `
+
+<div class="post">
+
+<b>
+${safe(post.nickname)}
+</b>
+
+
+<p>
+${safe(post.content)}
+</p>
+
+
+<div class="time">
+
+⭐ ${post.quality_votes || 0} 人认为优质
+
+</div>
+
+
+</div>
+
+`;
+
+
+
+});
+
+
+
+document.getElementById(
+"quality-posts"
+).innerHTML=
+
+html || "暂无优质帖子";
+
+
+}
+
+
+
+
+
+
+/*
+加载普通帖子
+*/
+
+
+async function loadPosts(){
+
+
+let {data,error}=await db
+
+.from("posts")
+
+.select("*")
+
+.order(
+"id",
+{
+ascending:false
+}
+)
+
+.limit(50);
+
+
+
+if(error){
+
+document.getElementById(
+"posts"
+).innerHTML=
+error.message;
+
 return;
 
 }
@@ -350,24 +348,86 @@ html += `
 
 
 <b>
-
 ${safe(post.nickname)}
-
 </b>
 
 
+
 <p>
-
 ${safe(post.content)}
-
 </p>
+
 
 
 <div class="time">
 
-⭐ ${post.quality_votes} 人认为优质
+${post.created_at || ""}
 
 </div>
+
+
+
+<button
+class="qualitybtn"
+onclick="voteQuality(${post.id})">
+
+⭐ 优质帖
+(${post.quality_votes || 0})
+
+</button>
+
+
+
+<button
+class="reportbtn"
+onclick="reportPost(${post.id})">
+
+举报
+
+</button>
+
+
+
+<div id="reply-${post.id}">
+
+加载回复中...
+
+</div>
+
+
+
+${
+post.locked
+
+?
+
+"<p style='color:#999;'>此帖子已锁定，无法回复</p>"
+
+:
+
+`
+
+<input
+
+id="input-${post.id}"
+
+placeholder="回复">
+
+
+<button
+
+class="replybtn"
+
+onclick="sendReply(${post.id})">
+
+回复
+
+</button>
+
+`
+
+}
+
 
 
 </div>
@@ -381,29 +441,8 @@ ${safe(post.content)}
 
 
 document.getElementById(
-"quality-posts"
-).innerHTML =
-
-html || "暂无优质帖子";
-
-
-}
-
-}
-
-
-
-</div>
-
-
-`;
-
-
-});
-
-
-
-document.getElementById("posts").innerHTML =
+"posts"
+).innerHTML=
 
 html || "暂无帖子";
 
@@ -417,10 +456,6 @@ loadReplies(post.id);
 
 
 }
-
-
-
-
 
 async function sendPost(){
 
@@ -443,13 +478,9 @@ return;
 
 
 let nickname =
-
 "匿名用户" +
-
 Math.floor(
-
 Math.random()*9000+1000
-
 );
 
 
@@ -478,9 +509,6 @@ content:text
 
 if(!res.ok){
 
-btn.disabled = false;
-btn.innerText = "回复";
-
 alert(await res.text());
 
 return;
@@ -492,22 +520,17 @@ return;
 document.getElementById("content").value="";
 
 
-
 await new Promise(resolve =>
-
 setTimeout(resolve,1000)
-
 );
-
 
 
 await loadPosts();
 
+await loadQualityPosts();
+
 
 }
-
-
-
 
 
 
@@ -545,35 +568,27 @@ data.forEach(r=>{
 
 html += `
 
-
 <div class="reply">
 
-
 <b>
-
 ${safe(r.nickname)}
-
 </b>
-
 
 ：
 
 ${safe(r.content)}
 
-
-
 </div>
 
-
 `;
+
 
 
 });
 
 
 
-let box =
-document.getElementById(
+let box=document.getElementById(
 "reply-"+post_id
 );
 
@@ -581,7 +596,7 @@ document.getElementById(
 
 if(box){
 
-box.innerHTML =
+box.innerHTML=
 html || "暂无回复";
 
 }
@@ -589,175 +604,22 @@ html || "暂无回复";
 
 }
 
-async function reportPost(id){
 
 
-let reason = prompt(
-"请输入举报原因：\n例如：辱骂、造谣、隐私泄露"
-);
 
-
-
-if(!reason){
-
-return;
-
-}
-
-
-// 获取当前匿名编号
-
-let nickname =
-"匿名用户" +
-Math.floor(
-Math.random()*9000+1000
-);
-
-
-
-// 查询这个帖子是否已经有举报记录
-
-let {data,error}=await db
-
-.from("reports")
-
-.select("*")
-
-.eq("post_id",id);
-
-
-
-if(error){
-
-alert(error.message);
-
-return;
-
-}
-
-
-
-
-// 已经有人举报
-
-if(data.length>0){
-
-
-let oldReason =
-data[0].reason || "";
-
-
-
-let newReason =
-oldReason
-+
-"\n\n"
-+
-nickname
-+
-"："
-+
-reason;
-
-
-
-let {error:updateError}=await db
-
-.from("reports")
-
-.update({
-
-reason:newReason
-
-})
-
-.eq("post_id",id);
-
-
-
-if(updateError){
-
-alert(updateError.message);
-
-return;
-
-}
-
-
-
-alert("举报已追加");
-
-return;
-
-
-}
-
-
-
-
-
-// 第一次举报
-
-let {error:insertError}=await db
-
-.from("reports")
-
-.insert({
-
-post_id:id,
-
-reason:
-
-nickname
-
-+
-"："
-
-+
-reason
-
-});
-
-
-
-if(insertError){
-
-alert(insertError.message);
-
-return;
-
-}
-
-
-
-alert("举报成功");
-
-
-}
 
 
 
 async function sendReply(post_id){
 
-let btn = event.target;
 
-if(btn.disabled){
-    return;
-}
-
-btn.disabled = true;
-btn.innerText = "发送中...";
-  
-let input =
-
-document.getElementById(
+let input=document.getElementById(
 "input-"+post_id
 );
 
 
 
-let text =
-input.value.trim();
+let text=input.value.trim();
 
 
 
@@ -770,18 +632,14 @@ return;
 
 
 let nickname =
-
 "匿名用户" +
-
 Math.floor(
-
 Math.random()*9000+1000
-
 );
 
 
 
-let res = await fetch("/api/reply",{
+let res=await fetch("/api/reply",{
 
 method:"POST",
 
@@ -820,18 +678,179 @@ input.value="";
 
 await loadReplies(post_id);
 
-btn.disabled = false;
-btn.innerText = "回复";
+
+}
 
 
- async function voteQuality(id){
+
+
+
+
+
+async function reportPost(id){
+
+
+let reason=prompt(
+"请输入举报原因："
+);
+
+
+
+if(!reason){
+
+return;
+
+}
+
+
+
+let nickname =
+"匿名用户" +
+Math.floor(
+Math.random()*9000+1000
+);
+
+
+
+
+// 查询是否已有举报
+
+
+let {data,error}=await db
+
+.from("reports")
+
+.select("*")
+
+.eq("post_id",id);
+
+
+
+if(error){
+
+alert(error.message);
+
+return;
+
+}
+
+
+
+
+// 已有举报，追加
+
+
+if(data.length>0){
+
+
+let newReason=
+
+data[0].reason
++
+"\n\n"
++
+nickname
++
+"："
++
+reason;
+
+
+
+let {error:updateError}=await db
+
+.from("reports")
+
+.update({
+
+reason:newReason
+
+})
+
+.eq(
+"post_id",
+id
+);
+
+
+
+if(updateError){
+
+alert(updateError.message);
+
+return;
+
+}
+
+
+
+alert("举报已追加");
+
+return;
+
+
+}
+
+
+
+
+// 第一次举报
+
+
+let {error:insertError}=await db
+
+.from("reports")
+
+.insert({
+
+post_id:id,
+
+reason:
+nickname
++
+"："
++
+reason
+
+});
+
+
+
+if(insertError){
+
+alert(insertError.message);
+
+return;
+
+}
+
+
+
+alert("举报成功");
+
+
+}
+
+
+
+
+
+
+
+async function voteQuality(id){
+
 
 
 let {error}=await db.rpc(
+
 "add_quality_vote",
+
 {
+
 post_id:id
+
 }
+
 );
 
 
@@ -849,12 +868,10 @@ return;
 alert("感谢投票");
 
 
-loadPosts();
-loadQualityPosts();
+await loadPosts();
 
-}   
+
 }
-
 
 
 
@@ -883,13 +900,13 @@ return String(str)
 
 
 
-
 loadPosts();
+
+loadQualityPosts();
 
 
 
 </script>
-
 
 
 </body>
