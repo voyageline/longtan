@@ -398,36 +398,28 @@ onclick="reportPost(${post.id})">
 
 ${
 post.locked
-
 ?
-
-"<p style='color:#999;'>此帖子已锁定，无法回复</p>"
-
-:
-
 `
-
+<p style="color:#999;">
+此帖子已锁定，无法回复
+</p>
+`
+:
+`
 <input
-
 id="input-${post.id}"
-
 placeholder="回复">
 
 
 <button
-
 class="replybtn"
-
 onclick="sendReply(${post.id})">
 
 回复
 
 </button>
-
 `
-
 }
-
 
 
 </div>
