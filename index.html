@@ -149,9 +149,16 @@ placeholder="请输入内容..."></textarea>
 </button>
 
 
+<h2>⭐ 优质帖子</h2>
+
+<div id="quality-posts">
+
+加载中...
+
+</div>
+
 
 <h2>最新帖子</h2>
-
 
 <div id="posts">
 
@@ -244,6 +251,18 @@ ${post.created_at || ""}
 
 </div>
 
+<button
+onclick="voteQuality(${post.id})"
+style="
+background:#faad14;
+color:white;
+margin-top:10px;
+">
+
+⭐ 优质帖 (${post.quality_votes || 0})
+
+</button>
+
 <button 
 onclick="reportPost(${post.id})"
 style="
@@ -288,7 +307,87 @@ onclick="sendReply(${post.id})">
 
 </button>
 
-`
+async function loadQualityPosts(){
+
+
+let {data,error}=await db
+
+.from("posts")
+
+.select("*")
+
+.eq("is_quality",true)
+
+.order(
+"quality_votes",
+{
+ascending:false
+}
+)
+
+.limit(10);
+
+
+
+if(error){
+
+return;
+
+}
+
+
+
+let html="";
+
+
+
+data.forEach(post=>{
+
+
+html += `
+
+<div class="post">
+
+
+<b>
+
+${safe(post.nickname)}
+
+</b>
+
+
+<p>
+
+${safe(post.content)}
+
+</p>
+
+
+<div class="time">
+
+⭐ ${post.quality_votes} 人认为优质
+
+</div>
+
+
+</div>
+
+`;
+
+
+
+});
+
+
+
+document.getElementById(
+"quality-posts"
+).innerHTML =
+
+html || "暂无优质帖子";
+
+
+}
 
 }
 
@@ -724,6 +823,36 @@ await loadReplies(post_id);
 btn.disabled = false;
 btn.innerText = "回复";
 
+
+ async function voteQuality(id){
+
+
+let {error}=await db.rpc(
+"add_quality_vote",
+{
+post_id:id
+}
+);
+
+
+
+if(error){
+
+alert(error.message);
+
+return;
+
+}
+
+
+
+alert("感谢投票");
+
+
+loadPosts();
+loadQualityPosts();
+
+}   
 }
 
 
